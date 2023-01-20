@@ -12,3 +12,10 @@ add_library(DspTool SHARED
 		dsptool/dsptool.h
 		dsptool/encode.c
 		dsptool/math.c)
+
+set_target_properties(DspTool PROPERTIES PUBLIC_HEADER dsptool/dsptool.h)
+
+install(TARGETS DspTool
+		PUBLIC_HEADER
+		LIBRARY
+		)
