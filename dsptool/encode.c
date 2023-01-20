@@ -14,7 +14,6 @@
 * 'current' and going 2 backwards
 */
 typedef double tvec[3];
-void correlateCoefs(int16_t* source, uint32_t samples, int16_t* coefsOut);
 void DSPEncodeFrame(short pcmInOut[16], int sampleCount, unsigned char adpcmOut[8], const short coefsIn[8][2]);
 
 void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples)
@@ -22,7 +21,7 @@ void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples)
 	int16_t* coefs = cxt->coef;
 	correlateCoefs(src, samples, coefs);
 
-	int32_t frameCount = samples / SAMPLES_PER_FRAME + (samples % SAMPLES_PER_FRAME != 0);
+	uint32_t frameCount = samples / SAMPLES_PER_FRAME + (samples % SAMPLES_PER_FRAME != 0);
 
 	int16_t* pcm = src;
 	uint8_t* adpcm = dst;
@@ -31,7 +30,7 @@ void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples)
 
 	for (int i = 0; i < frameCount; ++i, pcm += SAMPLES_PER_FRAME, adpcm += BYTES_PER_FRAME)
 	{
-		int32_t sampleCount = MIN(samples - i * SAMPLES_PER_FRAME, SAMPLES_PER_FRAME);
+		uint32_t sampleCount = MIN(samples - i * SAMPLES_PER_FRAME, SAMPLES_PER_FRAME);
 		memset(pcmFrame + 2, 0, SAMPLES_PER_FRAME * sizeof(int16_t));
 		memcpy(pcmFrame + 2, pcm, sampleCount * sizeof(int16_t));
 
@@ -49,7 +48,7 @@ void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples)
 	cxt->yn2 = 0;
 }
 
-void InnerProductMerge(tvec vecOut, short pcmBuf[14])
+void InnerProductMerge(tvec vecOut, const short pcmBuf[14])
 {
 	for (int i = 0; i <= 2; i++)
 	{
@@ -59,7 +58,7 @@ void InnerProductMerge(tvec vecOut, short pcmBuf[14])
 	}
 }
 
-void OuterProductMerge(tvec mtxOut[3], short pcmBuf[14])
+void OuterProductMerge(tvec mtxOut[3], const short pcmBuf[14])
 {
 	for (int x = 1; x <= 2; x++)
 		for (int y = 1; y <= 2; y++)
@@ -75,7 +74,7 @@ bool AnalyzeRanges(tvec mtx[3], int* vecIdxsOut)
 	double recips[3];
 	double val, tmp, min, max;
 
-	/* Get greatest distance from zero */
+	/* Get the greatest distance from zero */
 	for (int x = 1; x <= 2; x++)
 	{
 		val = MAX(fabs(mtx[x][1]), fabs(mtx[x][2]));
@@ -154,7 +153,7 @@ bool AnalyzeRanges(tvec mtx[3], int* vecIdxsOut)
 	return false;
 }
 
-void BidirectionalFilter(tvec mtx[3], int* vecIdxs, tvec vecOut)
+void BidirectionalFilter(tvec mtx[3], const int* vecIdxs, tvec vecOut)
 {
 	double tmp;
 
@@ -213,7 +212,7 @@ void FinishRecord(tvec in, tvec out)
 	out[2] = in[2];
 }
 
-void MatrixFilter(tvec src, tvec dst)
+void MatrixFilter(const tvec src, tvec dst)
 {
 	tvec mtx[3];
 
@@ -237,7 +236,7 @@ void MatrixFilter(tvec src, tvec dst)
 	}
 }
 
-void MergeFinishRecord(tvec src, tvec dst)
+void MergeFinishRecord(const tvec src, tvec dst)
 {
 	tvec tmp;
 	double val = src[0];
@@ -265,7 +264,7 @@ void MergeFinishRecord(tvec src, tvec dst)
 	FinishRecord(tmp, dst);
 }
 
-double ContrastVectors(tvec source1, tvec source2)
+double ContrastVectors(const tvec source1, const tvec source2)
 {
 	double val = (source2[2] * source2[1] + -source2[1]) / (1.0 - source2[2] * source2[2]);
 	double val1 = (source1[0] * source1[0]) + (source1[1] * source1[1]) + (source1[2] * source1[2]);
@@ -323,8 +322,8 @@ void FilterRecords(tvec vecBest[8], int exp, tvec records[], int recordCount)
 
 void correlateCoefs(int16_t* source, uint32_t samples, int16_t* coefsOut)
 {
-	int numFrames = (samples + 13) / 14;
-	int frameSamples;
+	uint32_t numFrames = (samples + 13) / 14;
+	uint32_t frameSamples;
 
 	short* blockBuffer = (short*)calloc(sizeof(short), 0x3800);
 	short pcmHistBuffer[2][14] = { 0 };
@@ -341,7 +340,7 @@ void correlateCoefs(int16_t* source, uint32_t samples, int16_t* coefsOut)
 	tvec vecBest[8];
 
 	/* Iterate though 1024-block frames */
-	for (int x = samples; x > 0;)
+	for (uint32_t x = samples; x > 0;)
 	{
 		if (x > 0x3800) /* Full 1024-block frame */
 		{
@@ -539,7 +538,7 @@ void DSPEncodeFrame(short pcmInOut[16], int sampleCount, unsigned char adpcmOut[
 
 	/* Write converted samples */
 	for (int s = 0; s < sampleCount; s++)
-		pcmInOut[s + 2] = inSamples[bestIndex][s + 2];
+		pcmInOut[s + 2] = (short)inSamples[bestIndex][s + 2];
 
 	/* Write ps */
 	adpcmOut[0] = (char)((bestIndex << 4) | (scale[bestIndex] & 0xF));

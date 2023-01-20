@@ -44,8 +44,8 @@ uint32_t getBytesForPcmSamples(uint32_t samples)
 
 uint32_t getNibbleAddress(uint32_t samples)
 {
-	int frames = samples / SAMPLES_PER_FRAME;
-	int extraSamples = samples % SAMPLES_PER_FRAME;
+	uint32_t frames = samples / SAMPLES_PER_FRAME;
+	uint32_t extraSamples = samples % SAMPLES_PER_FRAME;
 
 	return NIBBLES_PER_FRAME * frames + extraSamples + 2;
 }

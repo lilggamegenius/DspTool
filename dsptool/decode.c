@@ -12,12 +12,12 @@ static inline int DivideByRoundUp(int dividend, int divisor)
 
 static inline char GetHighNibble(char value)
 {
-	return value >> 4 & 0xF;
+	return (char)(value >> 4 & 0xF);
 }
 
 static inline char GetLowNibble(char value)
 {
-	return value & 0xF;
+	return (char)(value & 0xF);
 }
 
 static inline short Clamp16(int value)
@@ -26,7 +26,7 @@ static inline short Clamp16(int value)
 		return SHRT_MAX;
 	if (value < SHRT_MIN)
 		return SHRT_MIN;
-	return value;
+	return (short)value;
 }
 
 void decode(uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples)
@@ -34,13 +34,13 @@ void decode(uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples)
 	short hist1 = cxt->yn1;
 	short hist2 = cxt->yn2;
 	short* coefs = cxt->coef;
-	int frameCount = DivideByRoundUp(samples, SAMPLES_PER_FRAME);
-	int samplesRemaining = samples;
+	int frameCount = DivideByRoundUp((int)samples, SAMPLES_PER_FRAME);
+	int samplesRemaining = (int)samples;
 
 	for (int i = 0; i < frameCount; i++)
 	{
-		int predictor = GetHighNibble(*src);
-		int scale = 1 << GetLowNibble(*src++);
+		int predictor = (uint8_t)GetHighNibble((char)*src);
+		int scale = 1 << GetLowNibble((char)*src++);
 		short coef1 = coefs[predictor * 2];
 		short coef2 = coefs[predictor * 2 + 1];
 
@@ -48,7 +48,7 @@ void decode(uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples)
 
 		for (int s = 0; s < samplesToRead; s++)
 		{
-			int sample = s % 2 == 0 ? GetHighNibble(*src) : GetLowNibble(*src++);
+			int sample = s % 2 == 0 ? GetHighNibble((char)*src) : GetLowNibble((char)*src++);
 			sample = sample >= 8 ? sample - 16 : sample;
 			sample = (((scale * sample) << 11) + 1024 + (coef1 * hist1 + coef2 * hist2)) >> 11;
 			short finalSample = Clamp16(sample);
@@ -68,15 +68,15 @@ void getLoopContext(uint8_t* src, ADPCMINFO* cxt, uint32_t samples)
 	short hist1 = cxt->yn1;
 	short hist2 = cxt->yn2;
 	short* coefs = cxt->coef;
-	char ps = 0;
-	int frameCount = DivideByRoundUp(samples, SAMPLES_PER_FRAME);
-	int samplesRemaining = samples;
+	uint8_t ps = 0;
+	int frameCount = DivideByRoundUp((int)samples, SAMPLES_PER_FRAME);
+	uint32_t samplesRemaining = samples;
 
 	for (int i = 0; i < frameCount; i++)
 	{
 		ps = *src;
-		int predictor = GetHighNibble(*src);
-		int scale = 1 << GetLowNibble(*src++);
+		int predictor = (uint8_t)GetHighNibble((char)*src);
+		int scale = 1 << GetLowNibble((char)*src++);
 		short coef1 = coefs[predictor * 2];
 		short coef2 = coefs[predictor * 2 + 1];
 
@@ -84,7 +84,7 @@ void getLoopContext(uint8_t* src, ADPCMINFO* cxt, uint32_t samples)
 
 		for (int s = 0; s < samplesToRead; s++)
 		{
-			int sample = s % 2 == 0 ? GetHighNibble(*src) : GetLowNibble(*src++);
+			int sample = s % 2 == 0 ? GetHighNibble((char)*src) : GetLowNibble((char)*src++);
 			sample = sample >= 8 ? sample - 16 : sample;
 			sample = (((scale * sample) << 11) + 1024 + (coef1 * hist1 + coef2 * hist2)) >> 11;
 			short finalSample = Clamp16(sample);
