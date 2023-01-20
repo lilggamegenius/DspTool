@@ -9,10 +9,25 @@ extern "C" {
 #define SAMPLES_PER_FRAME 14
 #define NIBBLES_PER_FRAME 16
 
-#ifdef COMPILING_DLL 
-#define DLLEXPORT __declspec(dllexport)
+#if defined(_MSC_VER)
+//  Microsoft
+    #define EXPORT __declspec(dllexport)
+    #define IMPORT __declspec(dllimport)
+#elif defined(__GNUC__)
+//  GCC
+#define EXPORT __attribute__((visibility("default")))
+#define IMPORT
 #else
-#define DLLEXPORT __declspec(dllimport)  
+//  do nothing and hope for the best?
+    #define EXPORT
+    #define IMPORT
+    #pragma warning Unknown dynamic link import/export semantics.
+#endif
+
+#ifdef COMPILING_DLL 
+#define DLLEXPORT EXPORT
+#else
+#define DLLEXPORT IMPORT
 #endif
 
 typedef struct
