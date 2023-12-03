@@ -24,14 +24,13 @@ extern "C" {
     #pragma warning Unknown dynamic link import/export semantics.
 #endif
 
-#ifdef COMPILING_DLL 
+#ifdef COMPILING_DLL
 #define DLLEXPORT EXPORT
 #else
 #define DLLEXPORT IMPORT
 #endif
 
-typedef struct
-{
+typedef struct{
 	int16_t coef[16];
 	uint16_t gain;
 	uint16_t pred_scale;
@@ -44,11 +43,11 @@ typedef struct
 } ADPCMINFO;
 
 DLLEXPORT void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples);
-DLLEXPORT void decode(uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples);
-DLLEXPORT void getLoopContext(uint8_t* src, ADPCMINFO* cxt, uint32_t samples);
+DLLEXPORT void decode(const uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples);
+DLLEXPORT void getLoopContext(const uint8_t* src, ADPCMINFO* cxt, uint32_t samples);
 
 DLLEXPORT void encodeFrame(int16_t* src, uint8_t* dst, int16_t* coefs, uint8_t one);
-DLLEXPORT void correlateCoefs(int16_t* src, uint32_t samples, int16_t* coefsOut);
+DLLEXPORT void correlateCoefs(const int16_t* src, uint32_t samples, int16_t* coefsOut);
 
 DLLEXPORT uint32_t getBytesForAdpcmBuffer(uint32_t samples);
 DLLEXPORT uint32_t getBytesForAdpcmSamples(uint32_t samples);
