@@ -4,31 +4,11 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "DspTool/export.h"
 
 #define BYTES_PER_FRAME 8
 #define SAMPLES_PER_FRAME 14
 #define NIBBLES_PER_FRAME 16
-
-#if defined(_MSC_VER)
-//  Microsoft
-    #define EXPORT __declspec(dllexport)
-    #define IMPORT __declspec(dllimport)
-#elif defined(__GNUC__)
-//  GCC
-#define EXPORT __attribute__((visibility("default")))
-#define IMPORT
-#else
-//  do nothing and hope for the best?
-    #define EXPORT
-    #define IMPORT
-    #pragma warning Unknown dynamic link import/export semantics.
-#endif
-
-#ifdef COMPILING_DLL
-#define DLLEXPORT EXPORT
-#else
-#define DLLEXPORT IMPORT
-#endif
 
 typedef struct{
 	int16_t coef[16];
@@ -42,21 +22,21 @@ typedef struct{
 	int16_t loop_yn2;
 } ADPCMINFO;
 
-DLLEXPORT void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples);
-DLLEXPORT void decode(const uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples);
-DLLEXPORT void getLoopContext(const uint8_t* src, ADPCMINFO* cxt, uint32_t samples);
+DSPTOOL_EXPORT void encode(int16_t* src, uint8_t* dst, ADPCMINFO* cxt, uint32_t samples);
+DSPTOOL_EXPORT void decode(const uint8_t* src, int16_t* dst, ADPCMINFO* cxt, uint32_t samples);
+DSPTOOL_EXPORT void getLoopContext(const uint8_t* src, ADPCMINFO* cxt, uint32_t samples);
 
-DLLEXPORT void encodeFrame(int16_t* src, uint8_t* dst, int16_t* coefs, uint8_t one);
-DLLEXPORT void correlateCoefs(const int16_t* src, uint32_t samples, int16_t* coefsOut);
+DSPTOOL_EXPORT void encodeFrame(int16_t* src, uint8_t* dst, int16_t* coefs, uint8_t one);
+DSPTOOL_EXPORT void correlateCoefs(const int16_t* src, uint32_t samples, int16_t* coefsOut);
 
-DLLEXPORT uint32_t getBytesForAdpcmBuffer(uint32_t samples);
-DLLEXPORT uint32_t getBytesForAdpcmSamples(uint32_t samples);
-DLLEXPORT uint32_t getBytesForPcmBuffer(uint32_t samples);
-DLLEXPORT uint32_t getBytesForPcmSamples(uint32_t samples);
-DLLEXPORT uint32_t getNibbleAddress(uint32_t samples);
-DLLEXPORT uint32_t getNibblesForNSamples(uint32_t samples);
-DLLEXPORT uint32_t getSampleForAdpcmNibble(uint32_t nibble);
-DLLEXPORT uint32_t getBytesForAdpcmInfo(void);
+DSPTOOL_EXPORT uint32_t getBytesForAdpcmBuffer(uint32_t samples);
+DSPTOOL_EXPORT uint32_t getBytesForAdpcmSamples(uint32_t samples);
+DSPTOOL_EXPORT uint32_t getBytesForPcmBuffer(uint32_t samples);
+DSPTOOL_EXPORT uint32_t getBytesForPcmSamples(uint32_t samples);
+DSPTOOL_EXPORT uint32_t getNibbleAddress(uint32_t samples);
+DSPTOOL_EXPORT uint32_t getNibblesForNSamples(uint32_t samples);
+DSPTOOL_EXPORT uint32_t getSampleForAdpcmNibble(uint32_t nibble);
+DSPTOOL_EXPORT uint32_t getBytesForAdpcmInfo(void);
 
 #ifdef __cplusplus
 }
