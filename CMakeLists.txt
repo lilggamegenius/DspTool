@@ -15,8 +15,8 @@ if (DEFINED DspTool_SHARED_LIBS)
 endif ()
 
 add_library(DspTool
+		include/DspTool/dsptool.h
 		decode.c
-		include/dsptool.h
 		encode.c
 		math.c)
 add_library(DspTool::DspTool ALIAS DspTool)
@@ -24,7 +24,7 @@ set_target_properties(DspTool PROPERTIES
 		VERSION ${DspTool_VERSION}
 		SOVERSION ${DspTool_VERSION_MAJOR})
 target_include_directories(
-		DspTool PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
+		DspTool PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/DspTool>")
 target_compile_features(DspTool PUBLIC cxx_std_11)
 
 include(GenerateExportHeader)
